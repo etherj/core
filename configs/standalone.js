@@ -145,7 +145,11 @@ module.exports = function(config, optimist) {
                 "c9.cli.bridge": true,
                 "c9.nodeapi": true,
                 "c9.ide.experiment": true,
-                "saucelabs.preview": true
+                "saucelabs.preview": true,
+                "ethergit.solidity.language": true,
+                "ethergit.solidity.compiler": true,
+                "ethergit.sandbox": true,
+                "ethergit.ethereum.sandbox": true
             }
         },
         "./c9.preview/statics",

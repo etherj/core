@@ -12,6 +12,7 @@ plugin.provides = ["api", "passport"];
 module.exports = plugin;
     
 var fs = require("fs");
+var http = require("http");
 var assert = require("assert");
 var async = require("async");
 var join = require("path").join;
@@ -88,7 +89,11 @@ function plugin(options, imports, register) {
             w: {
                 source: "query",
                 optional: true
-            }, 
+            },
+	    sessionId: {
+                source: "session_id",
+                options: true
+	    }
         }
     }, function(req, res, next) {
         var configType = null;
@@ -104,24 +109,53 @@ function plugin(options, imports, register) {
         options.options.CORSWorkerPrefix = req.params.packed ? "/static/" + cdn.version + "/worker" : "";
 
         var collab = options.collab && req.params.collab !== 0 && req.params.nocollab != 1;
-        var opts = extend({}, options);
-        opts.options.collab = collab;
-        if (req.params.packed == 1)
-            opts.packed = opts.options.packed = true;
+
+        authenticate(options, function(err, options) {
+            if (err) return console.error("Could not get user details: " + err);
+	    
+            var opts = extend({}, options);
+            opts.options.collab = collab;
+            if (req.params.packed == 1)
+                opts.packed = opts.options.packed = true;
+            
+            api.updatConfig(opts.options, {
+                w: req.params.w,
+                token: req.params.sessionId
+            });
         
-        api.updatConfig(opts.options, {
-            w: req.params.w,
-            token: req.params.token
+            opts.options.debug = req.params.debug !== undefined;
+            res.setHeader("Cache-Control", "no-cache, no-store");
+            res.render(__dirname + "/views/standalone.html.ejs", {
+                architectConfig: getConfig(configType, opts),
+                configName: configName,
+                packed: opts.packed,
+                version: opts.version
+            }, next);
         });
-        
-        opts.options.debug = req.params.debug !== undefined;
-        res.setHeader("Cache-Control", "no-cache, no-store");
-        res.render(__dirname + "/views/standalone.html.ejs", {
-            architectConfig: getConfig(configType, opts),
-            configName: configName,
-            packed: opts.packed,
-            version: opts.version
-        }, next);
+
+        function authenticate(options, cb) {
+            var config = options.options;
+            var url = config.apiUrl + "/user-details?" +
+                    "projectId=" + config.extendOptions.project.id +
+                    "&sessionId=" + req.params.sessionId;
+            http.get(url, function(res) {
+                var body = "";
+                res.on("data", function(chuck) {
+                    body += chunk.toString();
+                });
+                res.on("end", function() {
+                    var details = JSON.parse(body);
+                    var user = config.extendOptions.user;
+                    user.id = details.id;
+                    user.name = details.name;
+                    user.email = details.email;
+                    user.fullname = details.fullname;
+                    cb(null, options);
+                });
+            }).on("error", function(e) {
+                cb(e.message);
+            });
+        }
     });
     
     api.get("/_ping", function(params, callback) {
@@ -249,11 +283,13 @@ function plugin(options, imports, register) {
     api.updatConfig = api.updatConfig || function(opts, params) {
         var id = params.token;
         opts.accessToken = opts.extendToken = id || "token";
+        /*
         var user = opts.extendOptions.user;
         user.id = id || -1;
         user.name = id ? "user" + id : "johndoe";
         user.email = id ? "user" + id + "@c9.io" : "johndoe@example.org";
         user.fullname = id ? "User " + id : "John Doe";
+         */
         opts.workspaceDir = params.w ? params.w : options.workspaceDir;
         opts.projectName = basename(opts.workspaceDir);
         if (!options._projects) {

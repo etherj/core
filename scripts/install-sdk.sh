@@ -121,6 +121,15 @@ installGlobalDeps() {
     fi
 }
 
+installEthergitPlugins() {
+    cd ./plugins
+    git clone https://github.com/etherj/ethergit.solidity.language.git
+    git clone https://github.com/etherj/ethergit.solidity.compiler.git
+    git clone https://github.com/etherj/ethergit.sandbox.git
+    git clone https://github.com/etherj/ethergit.ethereum.sandbox.git
+    cd ../
+}
+
 ############################################################################
 NPM=npm
 NODE=node
@@ -134,6 +143,7 @@ updateCore || true
 installGlobalDeps
 updateAllPackages
 updateNodeModules
+installEthergitPlugins
 
 echo "Success!"
 echo "run '${yellow}node server.js -p 8181 -l 0.0.0.0 -a :${resetColor}' to launch Cloud9"
