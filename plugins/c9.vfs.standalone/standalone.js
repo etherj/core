@@ -91,8 +91,8 @@ function plugin(options, imports, register) {
                 optional: true
             },
 	    sessionId: {
-                source: "session_id",
-                options: true
+                source: "query",
+                optional: true
 	    }
         }
     }, function(req, res, next) {
@@ -112,7 +112,7 @@ function plugin(options, imports, register) {
 
         authenticate(options, function(err, options) {
             if (err) return console.error("Could not get user details: " + err);
-	    
+            
             var opts = extend({}, options);
             opts.options.collab = collab;
             if (req.params.packed == 1)
@@ -122,7 +122,7 @@ function plugin(options, imports, register) {
                 w: req.params.w,
                 token: req.params.sessionId
             });
-        
+            
             opts.options.debug = req.params.debug !== undefined;
             res.setHeader("Cache-Control", "no-cache, no-store");
             res.render(__dirname + "/views/standalone.html.ejs", {
@@ -140,7 +140,7 @@ function plugin(options, imports, register) {
                     "&sessionId=" + req.params.sessionId;
             http.get(url, function(res) {
                 var body = "";
-                res.on("data", function(chuck) {
+                res.on("data", function(chunk) {
                     body += chunk.toString();
                 });
                 res.on("end", function() {

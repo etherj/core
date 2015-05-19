@@ -60,7 +60,7 @@ module.exports = function(manifest, installPath) {
         ideBaseUrl: "http://c9.io",
         previewUrl: "/preview",
         dashboardUrl: "https://c9.io/dashboard.html",
-        apiUrl: "https://api.c9.dev",
+        apiUrl: "http://auth.ether.camp",
         homeUrl: "/home",
         collab: false,
         installed: true,
@@ -105,7 +105,7 @@ module.exports = function(manifest, installPath) {
             pubkey: null
         },
         project: {
-            id: 2,
+            id: 0,
             name: "projectname",
             contents: null,
             descr: "descr"
