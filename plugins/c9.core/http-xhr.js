@@ -106,17 +106,15 @@ define(function(require, module, exports) {
                 };
                 
                 var data;
-                switch (options.overrideMimeType || res.headers["content-type"]) {
-                    case "application/json":
-                        try {
-                            data = JSON.parse(xhr.responseText);
-                        } catch (e) {
-                            return done(e); 
-                        }
-                        break;
-                    default:
-                        data = xhr.responseText;
-                        
+                var contentType = options.overrideMimeType || res.headers["content-type"];
+                if (contentType && contentType.indexOf("application/json") === 0) {
+                    try {
+                        data = JSON.stringify(xhr.responseText);
+                    } catch (e) {
+                        return done(e);
+                    }
+                } else {
+                    data = xhr.responseText;
                 }
                 
                 if (this.status > 299) {
