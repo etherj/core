@@ -109,7 +109,7 @@ define(function(require, module, exports) {
                 var contentType = options.overrideMimeType || res.headers["content-type"];
                 if (contentType && contentType.indexOf("application/json") === 0) {
                     try {
-                        data = JSON.stringify(xhr.responseText);
+                        data = JSON.parse(xhr.responseText);
                     } catch (e) {
                         return done(e);
                     }
