@@ -96,6 +96,9 @@ function plugin(options, imports, register) {
 	    }
         }
     }, function(req, res, next) {
+        if (!req.params.sessionId) {
+            return res.redirect("http://auth.ether.camp");
+        }
         var configType = null;
         if (req.params.workspacetype)
             configType = "workspace-" + req.params.workspacetype;
@@ -111,7 +114,10 @@ function plugin(options, imports, register) {
         var collab = options.collab && req.params.collab !== 0 && req.params.nocollab != 1;
 
         authenticate(options, function(err, options) {
-            if (err) return console.error("Could not get user details: " + err);
+            if (err) {
+                res.redirect("http://auth.ether.camp");
+                return console.error("Could not get user details: " + err);
+            }
             
             var opts = extend({}, options);
             opts.options.collab = collab;
@@ -144,7 +150,11 @@ function plugin(options, imports, register) {
                     body += chunk.toString();
                 });
                 res.on("end", function() {
-                    var details = JSON.parse(body);
+                    try {
+                        var details = JSON.parse(body);
+                    } catch (e) {
+                        return cb(e);
+                    }
                     var user = config.extendOptions.user;
                     user.id = details.id;
                     user.name = details.name;
