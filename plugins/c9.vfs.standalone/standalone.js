@@ -172,7 +172,11 @@ function plugin(options, imports, register) {
                     body += chunk.toString();
                 });
                 res.on("end", function() {
-                    var details = JSON.parse(body);
+                    try {
+                        var details = JSON.parse(body);
+                    } catch (e) {
+                        return cb(e);
+                    }
                     var user = config.extendOptions.user;
                     user.id = details.id;
                     user.name = details.name;
