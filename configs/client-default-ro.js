@@ -538,8 +538,7 @@ module.exports = function(options) {
 
         // Ethergit plugins
         "plugins/ethergit.solidity.language/solidity",
-        "plugins/ethergit.solidity.compiler/compiler",
-        "plugins/ethergit.sandbox/sandbox",
+/*
         "plugins/ethergit.ethereum.sandbox/sandbox",
         "plugins/ethergit.ethereum.sandbox/sandbox_panel",
         "plugins/ethergit.ethereum.sandbox/transactions_dialog",
@@ -547,6 +546,7 @@ module.exports = function(options) {
         "plugins/ethergit.ethereum.sandbox/contract_dialog",
         "plugins/ethergit.ethereum.sandbox/new_tx_dialog",
         "plugins/ethergit.ethereum.sandbox/pkey_dialog",
+*/
         "plugins/ethergit.ethereum.sandbox/idle_detector"
     ];
     
