@@ -110,9 +110,8 @@ function plugin(options, imports, register) {
 
         var collab = options.collab && req.params.collab !== 0 && req.params.nocollab != 1;
 
-        authenticate(options, function(err, options) {
-            if (err) return console.error("Could not get user details: " + err);
-            
+        if (!req.params.sessionId) {
+            options.options.extendOptions.readonly = options.options.readonly = options.readonly = true;
             var opts = extend({}, options);
             opts.options.collab = collab;
             if (req.params.packed == 1)
@@ -120,8 +119,14 @@ function plugin(options, imports, register) {
             
             api.updatConfig(opts.options, {
                 w: req.params.w,
-                token: req.params.sessionId
+                token: "good_token"
             });
+            
+            var user = opts.options.extendOptions.user;
+            user.id = 0;
+            user.name = "guest";
+            user.email = "guest@ether.camp";
+            user.fullname = "Guest";
             
             opts.options.debug = req.params.debug !== undefined;
             res.setHeader("Cache-Control", "no-cache, no-store");
@@ -131,7 +136,30 @@ function plugin(options, imports, register) {
                 packed: opts.packed,
                 version: opts.version
             }, next);
-        });
+        } else {
+            authenticate(options, function(err, options) {
+                if (err) return res.redirect('http://auth.ether.camp');
+                
+                var opts = extend({}, options);
+                opts.options.collab = collab;
+                if (req.params.packed == 1)
+                    opts.packed = opts.options.packed = true;
+                
+                api.updatConfig(opts.options, {
+                    w: req.params.w,
+                    token: req.params.sessionId
+                });
+                
+                opts.options.debug = req.params.debug !== undefined;
+                res.setHeader("Cache-Control", "no-cache, no-store");
+                res.render(__dirname + "/views/standalone.html.ejs", {
+                    architectConfig: getConfig(configType, opts),
+                    configName: configName,
+                    packed: opts.packed,
+                    version: opts.version
+                }, next);
+            });
+        }
 
         function authenticate(options, cb) {
             var config = options.options;
@@ -276,7 +304,7 @@ function plugin(options, imports, register) {
                     id: pid,
                     name: pid + "-" + options._projects[pid]
                 },
-                readonly: user.id > 100
+                readonly: options.options.extendOptions.readonly
             }
         };
     };    
@@ -338,7 +366,7 @@ function getConfigName(requested, options) {
     
     if (options.local)
         name += "-local";
-    
+
     return name;
 }
 
