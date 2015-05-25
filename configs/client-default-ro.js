@@ -538,8 +538,8 @@ module.exports = function(options) {
 
         // Ethergit plugins
         "plugins/ethergit.solidity.language/solidity",
-/*
         "plugins/ethergit.ethereum.sandbox/sandbox",
+/*
         "plugins/ethergit.ethereum.sandbox/sandbox_panel",
         "plugins/ethergit.ethereum.sandbox/transactions_dialog",
         "plugins/ethergit.ethereum.sandbox/transaction_dialog",
