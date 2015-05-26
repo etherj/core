@@ -692,7 +692,10 @@ module.exports = function(options) {
             staticPrefix: staticPrefix + "/plugins/c9.ide.collab/notifications"
         },
         // Ethergit plugins
-        "plugins/ethergit.solidity.language/solidity",
+        {
+            packagePath: "plugins/ethergit.solidity.language/solidity",
+            readonly: false
+        },
         "plugins/ethergit.solidity.compiler/compiler",
         "plugins/ethergit.sandbox/sandbox",
         "plugins/ethergit.ethereum.sandbox/sandbox",

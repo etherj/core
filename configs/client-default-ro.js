@@ -537,7 +537,10 @@ module.exports = function(options) {
         "plugins/c9.ide.readonly/proc",
 
         // Ethergit plugins
-        "plugins/ethergit.solidity.language/solidity",
+        {
+            packagePath: "plugins/ethergit.solidity.language/solidity",
+            readonly: true
+        },
         "plugins/ethergit.solidity.compiler/compiler",
 /*
         "plugins/ethergit.sandbox/sandbox",
