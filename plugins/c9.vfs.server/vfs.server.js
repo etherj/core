@@ -98,6 +98,10 @@ function plugin(options, imports, register) {
                 type: "string",
                 source: "body",
                 optional: false
+            },
+            "access_token": {
+                type: "string",
+                source: "query"
             }
         }
     }, [

@@ -56,11 +56,11 @@ define(function(require, exports, module) {
                     projectDir: vfsOptions.projectDir,
                     extendDirectory: options.extendDirectory,
                     extendOptions: projectOptions.extendOptions,
-                    extendToken: "good_token",
+                    extendToken: user.token,
                     collab: options.collab,
                     vfsOptions: vfsOptions,              
                     public: true,
-                    readonly: options.extendOptions.readonly
+                    readonly: user.readonly
                 }));
             });
             

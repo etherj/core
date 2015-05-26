@@ -109,24 +109,25 @@ function plugin(options, imports, register) {
         options.options.CORSWorkerPrefix = req.params.packed ? "/static/" + cdn.version + "/worker" : "";
 
         var collab = options.collab && req.params.collab !== 0 && req.params.nocollab != 1;
-
-        if (!req.params.sessionId) {
-            options.options.extendOptions.readonly = options.options.readonly = options.readonly = true;
+        
+        api.authenticate()(req, res, function() {
             var opts = extend({}, options);
             opts.options.collab = collab;
             if (req.params.packed == 1)
                 opts.packed = opts.options.packed = true;
-            
+
             api.updatConfig(opts.options, {
                 w: req.params.w,
-                token: "good_token"
+                token: req.user.token
             });
-            
+
             var user = opts.options.extendOptions.user;
-            user.id = 0;
-            user.name = "guest";
-            user.email = "guest@ether.camp";
-            user.fullname = "Guest";
+            user.id = req.user.id;
+            user.name = req.user.name;
+            user.email = req.user.email;
+            user.fullname = req.user.fullname;
+
+            opts.readonly = opts.options.readonly = opts.options.extendOptions.readonly = req.user.readonly;
             
             opts.options.debug = req.params.debug !== undefined;
             res.setHeader("Cache-Control", "no-cache, no-store");
@@ -135,59 +136,8 @@ function plugin(options, imports, register) {
                 configName: configName,
                 packed: opts.packed,
                 version: opts.version
-            }, next);
-        } else {
-            authenticate(options, function(err, options) {
-                if (err) return res.redirect('http://auth.ether.camp');
-                
-                var opts = extend({}, options);
-                opts.options.collab = collab;
-                if (req.params.packed == 1)
-                    opts.packed = opts.options.packed = true;
-                
-                api.updatConfig(opts.options, {
-                    w: req.params.w,
-                    token: req.params.sessionId
-                });
-                
-                opts.options.debug = req.params.debug !== undefined;
-                res.setHeader("Cache-Control", "no-cache, no-store");
-                res.render(__dirname + "/views/standalone.html.ejs", {
-                    architectConfig: getConfig(configType, opts),
-                    configName: configName,
-                    packed: opts.packed,
-                    version: opts.version
-                }, next);
-            });
-        }
-
-        function authenticate(options, cb) {
-            var config = options.options;
-            var url = config.apiUrl + "/user-details?" +
-                    "projectId=" + config.extendOptions.project.id +
-                    "&sessionId=" + req.params.sessionId;
-            http.get(url, function(res) {
-                var body = "";
-                res.on("data", function(chunk) {
-                    body += chunk.toString();
-                });
-                res.on("end", function() {
-                    try {
-                        var details = JSON.parse(body);
-                    } catch (e) {
-                        return cb(e);
-                    }
-                    var user = config.extendOptions.user;
-                    user.id = details.id;
-                    user.name = details.name;
-                    user.email = details.email;
-                    user.fullname = details.fullname;
-                    cb(null, options);
-                });
-            }).on("error", function(e) {
-                cb(e.message);
-            });
-        }
+            }, next);            
+        });
     });
     
     api.get("/_ping", function(params, callback) {
@@ -284,9 +234,67 @@ function plugin(options, imports, register) {
 
     // fake authentication
     api.authenticate = api.authenticate || function() {
-        return function(req, res, next) { 
-            req.user = extend({}, options.options.extendOptions.user);
-            next(); 
+        return function(req, res, next) {
+            var token = req.params.sessionId || req.params.access_token;
+            var config = options.options;
+            if (!token) {
+                if (!config.lastGuestId) config.lastGuestId = 10000;
+                var id = ++config.lastGuestId;
+                req.user = {
+                    id: id,
+                    name: "guest" + id,
+                    email: "guest" + id + "@ether.camp",
+                    fullname: "Guest" + id,
+                    readonly: true,
+                    token: "guest_token_" + id
+                };
+                next();
+            } else if (token.indexOf("guest_token_") === 0) {
+                id = token.substr(12);
+                req.user = {
+                    id: id,
+                    name: "guest" + id,
+                    email: "guest" + id + "@ether.camp",
+                    fullname: "Guest" + id,
+                    readonly: true,
+                    token: "guest_token_" + id
+                };
+                next();
+            } else {
+                var url = config.apiUrl + "/user-details?" +
+                        "projectId=" + config.extendOptions.project.id +
+                        "&sessionId=" + token;
+                http.get(url, function(res) {
+                    var body = "";
+                    res.on("data", function(chunk) {
+                        body += chunk.toString();
+                    });
+                    res.on("end", function() {
+                        try {
+                            var details = JSON.parse(body);
+                        } catch (e) {
+                            return showError(e.message);
+                        }
+                        req.user = {
+                            id: details.id,
+                            name: details.name,
+                            email: details.email,
+                            fullname: details.fullname,
+                            readonly: false,
+                            token: req.params.sessionId
+                        };
+                        next();
+                    });
+                }).on("error", function(e) {
+                    showError(e.message);
+                });
+            }                
+
+            function showError(err) {
+                console.error(err);
+                res.writeHead(500);
+                res.end(err);
+            }
         };
     };
     api.ensureAdmin = api.ensureAdmin || function() {
@@ -341,6 +349,7 @@ function plugin(options, imports, register) {
         "passport": {
             authenticate: function() {
                 return function(req, res, next) {
+                    console.log("passport.authenticate");
                     req.user = extend({}, options.options.extendOptions.user);
                     next();
                 };
@@ -367,7 +376,7 @@ function getConfigName(requested, options) {
     else {
         name = "default";
     }
-    
+
     if (options.local)
         name += "-local";
 
