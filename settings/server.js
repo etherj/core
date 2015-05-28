@@ -34,7 +34,7 @@ module.exports = function(manifest, installPath) {
         startBridge: true,
         manifest: manifest,
         workspaceDir: workspaceDir,
-        projectName: path.basename(workspaceDir),
+        Name: path.basename(workspaceDir),
         homeDir: home,
         workspaceId: "devel",
         workspaceName: "devel",
@@ -105,7 +105,7 @@ module.exports = function(manifest, installPath) {
             pubkey: null
         },
         project: {
-            id: 0,
+            id: 1,
             name: "projectname",
             contents: null,
             descr: "descr"

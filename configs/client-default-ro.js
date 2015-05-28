@@ -552,7 +552,8 @@ module.exports = function(options) {
         "plugins/ethergit.ethereum.sandbox/new_tx_dialog",
         "plugins/ethergit.ethereum.sandbox/pkey_dialog",
 */
-        "plugins/ethergit.ethereum.sandbox/idle_detector"
+        "plugins/ethergit.ethereum.sandbox/idle_detector",
+        "plugins/ethergit.guests.count/guests_count"
     ];
     
     if (packaging || !devel) {

@@ -237,58 +237,34 @@ function plugin(options, imports, register) {
         return function(req, res, next) {
             var token = req.params.sessionId || req.params.access_token;
             var config = options.options;
-            if (!token) {
-                if (!config.lastGuestId) config.lastGuestId = 10000;
-                var id = ++config.lastGuestId;
-                req.user = {
-                    id: id,
-                    name: "guest" + id,
-                    email: "guest" + id + "@ether.camp",
-                    fullname: "Guest" + id,
-                    readonly: true,
-                    token: "guest_token_" + id
-                };
-                next();
-            } else if (token.indexOf("guest_token_") === 0) {
-                id = token.substr(12);
-                req.user = {
-                    id: id,
-                    name: "guest" + id,
-                    email: "guest" + id + "@ether.camp",
-                    fullname: "Guest" + id,
-                    readonly: true,
-                    token: "guest_token_" + id
-                };
-                next();
-            } else {
-                var url = config.apiUrl + "/user-details?" +
-                        "projectId=" + config.extendOptions.project.id +
-                        "&sessionId=" + token;
-                http.get(url, function(res) {
-                    var body = "";
-                    res.on("data", function(chunk) {
-                        body += chunk.toString();
-                    });
-                    res.on("end", function() {
-                        try {
-                            var details = JSON.parse(body);
-                        } catch (e) {
-                            return showError(e.message);
-                        }
-                        req.user = {
-                            id: details.id,
-                            name: details.name,
-                            email: details.email,
-                            fullname: details.fullname,
-                            readonly: false,
-                            token: req.params.sessionId
-                        };
-                        next();
-                    });
-                }).on("error", function(e) {
-                    showError(e.message);
+            var url = config.apiUrl + "/user-details?" +
+                    "projectId=" + config.extendOptions.project.id;
+            if (token) url += "&sessionId=" + token;
+
+            http.get(url, function(res) {
+                var body = "";
+                res.on("data", function(chunk) {
+                    body += chunk.toString();
                 });
-            }                
+                res.on("end", function() {
+                    try {
+                        var details = JSON.parse(body);
+                    } catch (e) {
+                        return showError(e.message);
+                    }
+                    req.user = {
+                        id: details.id,
+                        name: details.name,
+                        email: details.email,
+                        fullname: details.fullname,
+                        readonly: details.readonly,
+                        token: details.token
+                    };
+                    next();
+                });
+            }).on("error", function(e) {
+                showError(e.message);
+            });
 
             function showError(err) {
                 console.error(err);
@@ -303,10 +279,10 @@ function plugin(options, imports, register) {
         };
     };
     api.getVfsOptions = api.getVfsOptions || function(user, pid) {
-        if (!options._projects) {
-            options._projects = [options.workspaceDir];
-        }
-        var wd = options._projects[pid] || options._projects[0];
+//        if (!options._projects) {
+//            options._projects = [options.workspaceDir];
+//        }
+        var wd = options.workspaceDir;//options.options._projects[pid] || options._projects[0];
         
         return {
             workspaceDir: wd,
@@ -314,7 +290,7 @@ function plugin(options, imports, register) {
                 user: user,
                 project: {
                     id: pid,
-                    name: pid + "-" + options._projects[pid]
+                    name: pid + "-" + wd
                 },
                 readonly: options.options.extendOptions.readonly
             }
@@ -332,14 +308,14 @@ function plugin(options, imports, register) {
          */
         opts.workspaceDir = params.w ? params.w : options.workspaceDir;
         opts.projectName = basename(opts.workspaceDir);
-        if (!options._projects) {
-            options._projects = [options.workspaceDir];
-        }
-        var project = opts.extendOptions.project;
-        var pid = options._projects.indexOf(opts.workspaceDir);
-        if (pid == -1)
-            pid = options._projects.push(opts.workspaceDir) - 1;
-        project.id = pid;
+//        if (!options._projects) {
+//            options._projects = [options.workspaceDir];
+//        }
+//        var project = opts.extendOptions.project;
+//        var pid = options._projects.indexOf(opts.workspaceDir);
+//        if (pid == -1)
+//            pid = options._projects.push(opts.workspaceDir) - 1;
+//        project.id = pid;
     };
     
     imports.connect.setGlobalOption("apiBaseUrl", "");

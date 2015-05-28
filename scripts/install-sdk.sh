@@ -127,6 +127,7 @@ installEthergitPlugins() {
     git clone https://github.com/etherj/ethergit.solidity.compiler.git
     git clone https://github.com/etherj/ethergit.sandbox.git
     git clone https://github.com/etherj/ethergit.ethereum.sandbox.git
+    git clone https://github.com/etherj/ethergit.guests.count.git
     cd ../
 }
 
