@@ -1142,6 +1142,8 @@ function handleConnect(userIds, client) {
             var usersMap = {};
             users.forEach(function (user) {
                 var uid = user.uid;
+                // skipping guests
+                if (uid >= 1000000) return;
                 var onlineUserClients = onlineUsers[uid] || [];
                 var onlineState;
                 if (idleUsers[uid])
@@ -1464,6 +1466,7 @@ function handleCursorUpdate(userIds, client, data) {
  * @param {String} docId   - the document id or path
  */
 function broadcast(message, sender, docId) {
+    if (sender.userIds.userId >= 1000000) return;
     var toClientIds = docId ? documents[docId] : clients;
     var audienceNum = 0;
     for (var clientId in toClientIds) {
