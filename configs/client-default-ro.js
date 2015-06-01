@@ -627,10 +627,6 @@ module.exports = function(options) {
         {
             packagePath: "plugins/c9.ide.collab/members/members",
             staticPrefix: staticPrefix + "/plugins/c9.ide.layout.classic"
-        },
-        {
-            packagePath: "plugins/c9.ide.collab/chat/chat",
-            staticPrefix: staticPrefix + "/plugins/c9.ide.collab/chat"
         });
     }
     return plugins;

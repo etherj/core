@@ -1417,6 +1417,9 @@ function handleChatMessage(userIds, client, data) {
     var text = data.text;
     var userId = userIds.userId;
 
+    // Block messages from guests.
+    if (userId >= 1000000) return;
+    
     // Save the chat message and broadcast it
     Store.saveChatMessage(text, userId, function (err, message) {
       if (err)
@@ -1466,7 +1469,7 @@ function handleCursorUpdate(userIds, client, data) {
  * @param {String} docId   - the document id or path
  */
 function broadcast(message, sender, docId) {
-    if (sender.userIds.userId >= 1000000) return;
+    if (sender && sender.userIds.userId >= 1000000) return;
     var toClientIds = docId ? documents[docId] : clients;
     var audienceNum = 0;
     for (var clientId in toClientIds) {
