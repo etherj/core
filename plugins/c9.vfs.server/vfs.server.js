@@ -315,6 +315,40 @@ function plugin(options, imports, register) {
         }
     ]);
 
+    section.all("/:vfsid/sandbox", {
+        params: {
+            vfsid: {
+                type: "vfsid"
+            },
+            id: {
+                source: "body",
+                type: "number"
+            },
+            method: {
+                source: "body",
+                type: "string"
+            },
+            params: {
+                source: "body",
+                type: "array"
+            }
+        }
+    }, [
+        requestTimeout(1*60*1000),
+        function handleSandbox(req, res, next) {
+            var vfsid = req.params.vfsid;
+            
+            var entry = cache.get(vfsid);
+            if (!entry) {
+                var err = new error.PreconditionFailed("VFS connection does not exist");
+                err.code = 499;
+                return next(err);
+            }
+
+            entry.vfs.handleSandbox(req, res, next);
+        }
+    ]);
+            
     register(null, {
         "vfs.server": {
             get section() { return section; }
