@@ -34,7 +34,7 @@ module.exports = function(manifest, installPath) {
         startBridge: true,
         manifest: manifest,
         workspaceDir: workspaceDir,
-        Name: path.basename(workspaceDir),
+        projectName: path.basename(workspaceDir),
         homeDir: home,
         workspaceId: "devel",
         workspaceName: "devel",
@@ -136,7 +136,7 @@ module.exports = function(manifest, installPath) {
         pricing: { containers: [] },
         zuora: {},
         localExtend: true,
-        extendDirectory: __dirname + "/../plugins/c9.vfs.extend"
+        extendDirectory: __dirname + "/../plugins/"
     };
 
     config.extendOptions = {
