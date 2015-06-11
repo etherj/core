@@ -572,6 +572,10 @@ module.exports = function(options) {
             revision: options.manifest.revision
         });
     }
+    if (!hosted) {
+        plugins.push("plugins/c9.ide.analytics/mock_analytics");
+    }
+
     
     // Collab
     if (packaging || !collab) {
