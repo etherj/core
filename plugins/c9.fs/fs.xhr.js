@@ -41,8 +41,8 @@ return function(_request) {
                 var ln = data.length;
                 callback(err, data.substr(0, ln - ml), ml && data.substr(-1 * ml) || "", res);
             } else {
-                if (hasMetadata)
-                    throw new Error("Unexpected metadata");
+                //if (hasMetadata)
+                    //throw new Error("Unexpected metadata");
                 callback(err, data, res);
             }
         }, progress, false, headers);
