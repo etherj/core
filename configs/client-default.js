@@ -711,8 +711,7 @@ module.exports = function(options) {
         "plugins/ethergit.ethereum.sandbox/idle_detector",
         "plugins/ethergit.ethereum.sandbox/stablenet_log",
         "plugins/ethergit.guests.count/guests_count",
-        "plugins/ethergit.preview.browser.sandbox/browser",
-        "plugins/plugin.simple/plugin"
+        "plugins/ethergit.preview.browser.sandbox/browser"
     ];
     
     if (packaging || !devel) {
