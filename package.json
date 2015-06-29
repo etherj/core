@@ -41,7 +41,7 @@
         "ws": "0.4.31",
         "read": "~1.0.5",
         "form-data": "~0.2.0",
-        "ethereumjs-lib": "0.1.10",
+        "ethereumjs-lib": "0.3",
         "sha3": "*"
     },
     "devDependencies": {
